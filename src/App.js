@@ -1,23 +1,54 @@
-import logo from './logo.svg';
+
 import './App.css';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 function App() {
+  const [data, setData] = useState()
+  const [search, setSearch] = useState()
+  
+  async function getUser(){
+
+    if(!search){
+      return
+    }
+
+    const responseData = await axios.get(`https://api.github.com/users/${search}`)
+    .then(response => response.data)
+    .catch(error => error.response.data)
+
+    setData(responseData)
+ }
+
+
+  useEffect(()=>{
+
+    getUser()
+  },[])
+
+  useEffect(() => {console.log("data",data)},[data])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {
+        data ?
+        (
+          <>
+            
+            <h1>{data?.login}</h1>
+            <img src={data?.avatar_url} height={128} width={128} alt="user" />
+      
+            <a href={data?.html_url} target='blank'>Link do perfil</a>
+          </>
+        ) : 
+        (
+          <>
+            <input type="text" nome='search' id='search' onChange={(event) => setSearch(event.target.value)} />
+            <button type='button' onClick={()=>getUser()}>pesquisar</button>
+          </>
+        )
+      }
+      
     </div>
   );
 }
